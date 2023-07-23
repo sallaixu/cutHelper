@@ -31,9 +31,7 @@ import java.io.Reader;
 public class CutUtil {
 
     /**
-
-     *1. 从剪切板获得文字。
-
+     * 1. 从剪切板获得文字。
      */
 
     public static String getSysClipboardText() {
@@ -42,21 +40,21 @@ public class CutUtil {
 
         Clipboard sysClip = Toolkit.getDefaultToolkit().getSystemClipboard();
 
-// 获取剪切板中的内容
+        // 获取剪切板中的内容
 
         Transferable clipTf = sysClip.getContents(null);
 
         if (clipTf != null) {
 
-// 检查内容是否是文本类型
+            // 检查内容是否是文本类型
 
             if (clipTf.isDataFlavorSupported(DataFlavor.stringFlavor)) {
 
                 try {
 
-                        ret = (String) clipTf
+                    ret = (String) clipTf
 
-                        .getTransferData(DataFlavor.stringFlavor);
+                            .getTransferData(DataFlavor.stringFlavor);
 
                 } catch (Exception e) {
 
@@ -73,9 +71,7 @@ public class CutUtil {
     }
 
     /**
-
      * 2.将字符串复制到剪切板。
-
      */
 
     public static void setSysClipboardText(String writeMe) {
@@ -89,9 +85,7 @@ public class CutUtil {
     }
 
     /**
-
-     *3. 从剪切板获得图片。
-
+     * 3. 从剪切板获得图片。
      */
 
     public static Image getImageFromClipboard() throws Exception {
@@ -100,40 +94,38 @@ public class CutUtil {
 
         Transferable cc = sysc.getContents(null);
 
-        if (cc == null)
-
+        if (cc == null) {
             return null;
-
-        else if (cc.isDataFlavorSupported(DataFlavor.imageFlavor))
-
+        } else if (cc.isDataFlavorSupported(DataFlavor.imageFlavor)) {
             return (Image) cc.getTransferData(DataFlavor.imageFlavor);
-
+        }
         return null;
 
     }
 
     /**
-
      * 4.复制图片到剪切板。
-
      */
 
-    public static void setClipboardImage(final Image image)throws Exception {
+    public static void setClipboardImage(final Image image) throws Exception {
 
         Transferable trans = new Transferable() {
 
+            @Override
             public DataFlavor[] getTransferDataFlavors() {
 
-                return new DataFlavor[] { DataFlavor.imageFlavor };
+                return new DataFlavor[]{DataFlavor.imageFlavor};
 
             }
 
+            @Override
             public boolean isDataFlavorSupported(DataFlavor flavor) {
 
                 return DataFlavor.imageFlavor.equals(flavor);
 
             }
 
+            @Override
             public Object getTransferData(DataFlavor flavor)
 
                     throws UnsupportedFlavorException, IOException {
@@ -155,12 +147,10 @@ public class CutUtil {
     }
 
     /**
-
      * 5.通过流获取，可读取图文混合
-
      */
 
-    public void getImageAndTextFromClipboard() throws Exception{
+    public void getImageAndTextFromClipboard() throws Exception {
 
         Clipboard sysClip = Toolkit.getDefaultToolkit().getSystemClipboard();
 
@@ -170,11 +160,9 @@ public class CutUtil {
 
         int wholeLength = 0;
 
-        for (int i = 0; i < dataList.length; i++) {
+        for (DataFlavor data : dataList) {
 
-            DataFlavor data = dataList[i];
-
-            if (data.getSubType().equals("rtf")) {
+            if ("rtf".equals(data.getSubType())) {
 
                 Reader reader = data.getReaderForText(clipTf);
 

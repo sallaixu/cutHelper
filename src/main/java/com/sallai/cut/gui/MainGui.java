@@ -1,138 +1,124 @@
 package com.sallai.cut.gui;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.IntelliJTheme;
+import com.sallai.cut.adapter.BaseCustomMouseListener;
+import com.sallai.cut.componet.HeaderJPanel;
 import com.sallai.cut.utils.CutList;
 import com.sallai.cut.utils.CutUtil;
-import com.sallai.cut.utils.NumberField;
+import lombok.extern.slf4j.Slf4j;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.util.Collection;
+
+import static com.sallai.cut.utils.AppConstant.HELLO_ITEM_INFO;
 
 /**
  * @description: main gui$
  * @author: sallai
  * @time: 2022年2月27日 0027 上午 10:23:03 秒
  */
+@Slf4j
 public class MainGui {
-    public static JList mJList = null;
+    public static DefaultListModel<String> listModel = new DefaultListModel<>();
+    private static final JList<String> mJlist = new JList<>(listModel);
     public static long start = 0;
     public static int select_index = -1;
-    public static void initGui() {
-        JFrame cut_helper = new JFrame("cut");
-        cut_helper.setSize(250, 300);// 设置窗口大小
-        cut_helper.setResizable(false);
-        cut_helper.setLocationRelativeTo(null);             // 把窗口位置设置到屏幕中心
-        cut_helper.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // 当点击窗口的关闭按钮时退出程序（没有这一句，程序不会退出）
+    private static JScrollPane jScrollPane;
+    public static JFrame cutHelper;
 
+    public void initGui() {
+        FlatLightLaf.setup();
+        FlatDarkLaf.setup();
+
+        listModel.addElement(HELLO_ITEM_INFO);
+        //舒适化窗口
+        cutHelper = new JFrame("cut helper");
+        // 设置窗口大小
+        cutHelper.setSize(300, 400);
+        cutHelper.setResizable(true);
+        // 把窗口位置设置到屏幕中心
+        cutHelper.setLocationRelativeTo(null);
+        // 当点击窗口的关闭按钮时退出程序（没有这一句，程序不会退出）
+        cutHelper.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         //组件
-//        JLabel jLabel = new JLabel("开机启动");
-//        JLabel lable_card_num = new JLabel("历史记录条数");
-        JLabel author_name = new JLabel("author: sallai");
-//        JLabel author_email = new JLabel("email: sallai@aliyun.com");
-        JCheckBox cb_top = new JCheckBox("置顶");
 
-        cb_top.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                cut_helper.setAlwaysOnTop(cb_top.isSelected());
-            }
-        });
-
-        String[] str = {"hello,this is wating the data init"};
-        mJList = new JList(str);
-        mJList.addMouseListener(new MouseListener() {
+        mJlist.addMouseListener(new BaseCustomMouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 long end = System.currentTimeMillis();
-                if( mJList.getSelectedIndex() == select_index && (end - start) < 1000) {
-                    CutUtil.setSysClipboardText(CutList.getInstance().getmCutlist().get(select_index));
-//                    log.info("copy success");
+                if( mJlist.getSelectedIndex() == select_index && (end - start) < 1000) {
+                    CutUtil.setSysClipboardText(mJlist.getSelectedValue());
+                    log.info("copy success");
+                    JOptionPane.showMessageDialog(cutHelper, "复制成功", "Message", JOptionPane.INFORMATION_MESSAGE);
                 }
-                select_index = mJList.getSelectedIndex();
+                select_index = mJlist.getSelectedIndex();
                 start = end;
 
             }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
-
         });
 
-        JScrollPane jScrollPane = new JScrollPane(mJList);
+        jScrollPane = new JScrollPane(mJlist);
         jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        jScrollPane.setSize(250,500);
-//        JEditorPane jEditorPane = new JEditorPane();
-//        jEditorPane.setDocument(new NumberField());
-//        JCheckBox aTrue = new JCheckBox();
-//        aTrue.setSelected(false);
-        //采用网格布局管理器
-        GridBagLayout gridBag = new GridBagLayout();    // 布局管理器
-        GridBagConstraints c = null;                    // 约束
-        JPanel jPanel = new JPanel(gridBag);
-        GridBagConstraints gridBagConstraints=new GridBagConstraints();//实例化这个对象用来对组件进行管理
+        jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        jScrollPane.setOpaque(false);
+        jScrollPane.getViewport().setOpaque(false);
+        jScrollPane.setSize(1000,1000);
+        jScrollPane.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                super.componentShown(e);
+            }
+        });
 
+        //添加默认序号
+        mJlist.setCellRenderer(new DefaultListCellRenderer(){
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component renderer = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                String text = "[" +(index + 1)+"]" + ". " + value.toString();
+//                if(index%2==0) {
+//                    ((JLabel) renderer).setBackground(new Color(255,248,220));
+//                }
+                ((JLabel) renderer).setText(text);
+                return renderer;
+            }
+        });
 
-        gridBagConstraints=new GridBagConstraints();//实例化这个对象用来对组件进行管理
-        gridBagConstraints.gridx=0;
-        gridBagConstraints.gridy=0;
-        gridBagConstraints.gridwidth=1;
-        gridBagConstraints.gridheight=1;
-        gridBag.setConstraints(cb_top, gridBagConstraints);
-
-
-        gridBagConstraints=new GridBagConstraints();//实例化这个对象用来对组件进行管理
-        gridBagConstraints.gridx=0;
-        gridBagConstraints.gridy=2;
-        gridBagConstraints.gridwidth=4;
-        gridBagConstraints.gridheight=1;
-        gridBag.setConstraints(jScrollPane, gridBagConstraints);
-
-
-        gridBagConstraints=new GridBagConstraints();//实例化这个对象用来对组件进行管理
-        gridBagConstraints.gridx=0;
-        gridBagConstraints.gridy=3;
-        gridBagConstraints.gridwidth=4;
-        gridBagConstraints.gridheight=1;
-        gridBag.setConstraints(author_name, gridBagConstraints);
-
-        //添加面板
-
+        //添加头panel
+        HeaderJPanel headerJPanel = new HeaderJPanel();
+        headerJPanel.setMinimumSize(new Dimension(0,20));
+//        headerJPanel.setPreferredSize(new Dimension(0,0));
+        headerJPanel.setMaximumSize(new Dimension(1000,20));
+        JPanel jPanel = new JPanel();
+        BoxLayout boxLayout = new BoxLayout(jPanel, BoxLayout.Y_AXIS);
+        jPanel.setLayout(boxLayout);
+        jPanel.add(headerJPanel);
         jPanel.add(jScrollPane);
-        jPanel.add(author_name);
-        jPanel.add(cb_top);
-
-        cut_helper.setContentPane(jPanel);
-        cut_helper.setAlwaysOnTop(false);
-        cut_helper.pack();
-        cut_helper.setVisible(true);// 5. 显示窗口，前面创建的信息都在内存中，通过 jf.setVisible(true) 把内存中的窗口显示在屏幕上。
+//        cutHelper.setLayout(new BoxLayout(jPanel, BoxLayout.Y_AXIS));
+        cutHelper.setContentPane(jPanel);
+        cutHelper.setAlwaysOnTop(true);
 
         //读取记录
+        // 5. 显示窗口，前面创建的信息都在内存中，通过 jf.setVisible(true) 把内存中的窗口显示在屏幕上。
+        cutHelper.setVisible(true);
         CutList.getInstance().getListFromFile();
+
     }
 
-    public static void updateCutList(String[] strs) {
-        mJList.setListData(strs);
+    public static void addListModel(Collection<String> list) {
+        list.forEach(str->listModel.add(0,str));
+        mJlist.setSelectedIndex(0);
+        mJlist.ensureIndexIsVisible(0);
     }
 }

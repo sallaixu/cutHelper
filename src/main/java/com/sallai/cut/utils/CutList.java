@@ -2,8 +2,10 @@ package com.sallai.cut.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sallai.cut.gui.MainGui;
+import lombok.extern.slf4j.Slf4j;
 
 
+import javax.swing.*;
 import java.io.*;
 import java.util.*;
 
@@ -12,44 +14,49 @@ import java.util.*;
  * @author: sallai
  * @time: 2022年2月27日 0027 下午 12:25:49 秒
  */
-
+@Slf4j
 public class CutList {
     private static final CutList mInstance = new CutList();
-    private static LinkedList<String> mCutlist = new LinkedList<String>();
-    private static final int HISTORY_NUM = 20;
+    private static final int HISTORY_NUM = 500;
     private static int add_count = 0;
+    //上一个字符串
     private static String Pre_String = "";
+    //新增记录多少时写入文件里
+    private final static int saveNum = 5;
     private CutList(){
 
     }
 
     public static CutList getInstance() {
-//        log.info("get a CutList instance");
         return mInstance;
     }
 
+    /**
+     * 向界面添加值
+     * @param str
+     * @return
+     */
     public boolean addCutCard(String str) {
+        DefaultListModel<String> listModel = MainGui.listModel;
         if("".equals(str)) {
-//            log.debug("add Cut Card is empty!");
             return false;
         }
         if( Pre_String.equals(str) ) {
-//            log.debug("current add str is same and pre_string");
+            return false;
+        }
+
+        if(str.equals(listModel.get(0))) {
             return false;
         }
         Pre_String = str;
-        if( mCutlist.size() >= HISTORY_NUM ) {
-            mCutlist.addFirst(str);
-            mCutlist.removeLast();
-        } else {
-            mCutlist.addFirst(str);
+        if( listModel.size() >= HISTORY_NUM ) {
+            listModel.remove(listModel.size()-1);
         }
-//        log.debug("current cutList size is ->"+mCutlist.size());
-
-        updateGui();
-        System.out.println("update gui1");
+        MainGui.addListModel(Arrays.asList(str));
+//        updateGui();
+        log.info("update gui1");
         ++add_count;
-        if( add_count > 3 ) {
+        if( add_count > saveNum) {
             saveListToFile();
             add_count = 0;
         }
@@ -57,20 +64,11 @@ public class CutList {
 
     }
 
-    public void updateGui() {
 
-        String[] strs = new String[mCutlist.size()];
-        for (int i = 0; i < mCutlist.size(); i++) {
-            strs[i] = i+1+"."+mCutlist.get(i);
-        }
-        MainGui.updateCutList(strs);
-    }
-
-    public LinkedList<String> getmCutlist() {
-        return mCutlist;
-    }
-
-
+    /**
+     * 将记录持久化到文件中
+     * @return
+     */
     public boolean saveListToFile() {
 
         File file = new File(LocalConstants.LIST_SAVE_PATH);
@@ -78,12 +76,17 @@ public class CutList {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                System.out.println("create LIST_SAVE_PATH fail");
+                log.info("create LIST_SAVE_PATH fail");
                 e.printStackTrace();
                 return false;
             }
         }
-        String jsonString = JSONObject.toJSONString(mCutlist);
+        Enumeration<String> elements = MainGui.listModel.elements();
+        List<String> saveList = new ArrayList<>();
+        while (elements.hasMoreElements()) {
+            saveList.add(elements.nextElement());
+        }
+        String jsonString = JSONObject.toJSONString(saveList);
         FileWriter fileWriter =null;
         try {
             fileWriter = new FileWriter(file,false);
@@ -105,14 +108,14 @@ public class CutList {
     }
 
 
-    public boolean getListFromFile() {
+    public void getListFromFile() {
 
         File file = new File(LocalConstants.LIST_SAVE_PATH);
         if (!file.exists()) {
-            System.out.println("read file fail, file not exists");
-            return false;
+            log.info("read file fail, file not exists");
+            return;
         }
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         try {
             FileReader fileReader = new FileReader(file);
             char[] chars = new char[100];
@@ -122,19 +125,17 @@ public class CutList {
                 len = fileReader.read(chars);
             }
             List<String> list = JSONObject.parseArray(stringBuffer.toString(),String.class);
-            mCutlist.clear();
-            mCutlist.addAll(list);
-            updateGui();
-            System.out.println("update gui2");
+            if(list.isEmpty()) {
+                return;
+            }
+            MainGui.listModel.clear();
+            MainGui.addListModel(list);
+//            updateGui();
+            log.debug("set cut history from file");
         }catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
 
-        return true;
-
     }
-
-
 
 }

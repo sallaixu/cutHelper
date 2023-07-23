@@ -14,6 +14,7 @@ public class NumberField extends PlainDocument {
     public NumberField() {
     }
 
+    @Override
     public void insertString(int var1, String var2, AttributeSet var3) throws BadLocationException {
         if (this.isNumeric(var2)) {
             super.insertString(var1, var2, var3);
