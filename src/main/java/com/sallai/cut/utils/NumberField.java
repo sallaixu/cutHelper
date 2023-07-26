@@ -5,10 +5,11 @@ package com.sallai.cut.utils;
  * @author: sallai
  * @time: 2022年2月27日 0027 上午 11:09:54 秒
  */
-import java.awt.Toolkit;
+
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
+import java.awt.*;
 
 public class NumberField extends PlainDocument {
     public NumberField() {

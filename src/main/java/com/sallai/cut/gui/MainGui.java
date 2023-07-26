@@ -1,9 +1,7 @@
 package com.sallai.cut.gui;
 
 import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-import com.formdev.flatlaf.IntelliJTheme;
 import com.sallai.cut.adapter.BaseCustomMouseListener;
 import com.sallai.cut.componet.HeaderJPanel;
 import com.sallai.cut.utils.CutList;
@@ -11,10 +9,6 @@ import com.sallai.cut.utils.CutUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;

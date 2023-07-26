@@ -6,26 +6,11 @@ package com.sallai.cut.utils;
  * @time: 2022年2月27日 0027 上午 10:20:13 秒
  */
 
-import java.awt.Image;
-
-import java.awt.Toolkit;
-
-import java.awt.datatransfer.Clipboard;
-
-import java.awt.datatransfer.DataFlavor;
-
-import java.awt.datatransfer.StringSelection;
-
-import java.awt.datatransfer.Transferable;
-
-import java.awt.datatransfer.UnsupportedFlavorException;
-
+import java.awt.*;
+import java.awt.datatransfer.*;
 import java.io.FileOutputStream;
-
 import java.io.IOException;
-
 import java.io.OutputStreamWriter;
-
 import java.io.Reader;
 
 public class CutUtil {
