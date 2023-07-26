@@ -24,3 +24,7 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn clean install
+    - name: Copy artifacts to workspace
+      run: cp -r target ${{ github.workspace }}/artifacts
+  
+
