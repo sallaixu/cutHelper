@@ -18,7 +18,7 @@ import java.util.Collection;
 import static com.sallai.cut.utils.AppConstant.HELLO_ITEM_INFO;
 
 /**
- * @description: main gui$
+ * @description: main gui
  * @author: sallai
  * @time: 2022年2月27日 0027 上午 10:23:03 秒
  */
