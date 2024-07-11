@@ -6,6 +6,7 @@ import com.sallai.cut.adapter.BaseCustomMouseListener;
 import com.sallai.cut.componet.HeaderJPanel;
 import com.sallai.cut.utils.CutList;
 import com.sallai.cut.utils.CutUtil;
+import com.sallai.cut.utils.Notification;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
@@ -37,7 +38,7 @@ public class MainGui {
 
         listModel.addElement(HELLO_ITEM_INFO);
         //舒适化窗口
-        cutHelper = new JFrame("cut helper");
+        cutHelper = new JFrame("CutHelper");
         // 设置窗口大小
         cutHelper.setSize(300, 400);
         cutHelper.setResizable(true);
@@ -46,7 +47,6 @@ public class MainGui {
         // 当点击窗口的关闭按钮时退出程序（没有这一句，程序不会退出）
         cutHelper.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         //组件
-
         mJlist.addMouseListener(new BaseCustomMouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -54,11 +54,13 @@ public class MainGui {
                 if( mJlist.getSelectedIndex() == select_index && (end - start) < 1000) {
                     CutUtil.setSysClipboardText(mJlist.getSelectedValue());
                     log.info("copy success");
-                    JOptionPane.showMessageDialog(cutHelper, "复制成功", "Message", JOptionPane.INFORMATION_MESSAGE);
+                    String text = mJlist.getSelectedValue();
+                    Notification.showNotification("cutHelper","已复制:"+
+                            text.substring(0, Math.min(text.length(), 30)) + "...");
+//                    JOptionPane.showMessageDialog(cutHelper, "复制成功", "Message", JOptionPane.INFORMATION_MESSAGE);
                 }
                 select_index = mJlist.getSelectedIndex();
                 start = end;
-
             }
         });
 
@@ -76,6 +78,7 @@ public class MainGui {
         });
 
         //添加默认序号
+
         mJlist.setCellRenderer(new DefaultListCellRenderer(){
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -92,14 +95,12 @@ public class MainGui {
         //添加头panel
         HeaderJPanel headerJPanel = new HeaderJPanel();
         headerJPanel.setMinimumSize(new Dimension(0,20));
-//        headerJPanel.setPreferredSize(new Dimension(0,0));
         headerJPanel.setMaximumSize(new Dimension(1000,20));
         JPanel jPanel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(jPanel, BoxLayout.Y_AXIS);
         jPanel.setLayout(boxLayout);
         jPanel.add(headerJPanel);
         jPanel.add(jScrollPane);
-//        cutHelper.setLayout(new BoxLayout(jPanel, BoxLayout.Y_AXIS));
         cutHelper.setContentPane(jPanel);
         cutHelper.setAlwaysOnTop(true);
 
@@ -107,7 +108,6 @@ public class MainGui {
         // 5. 显示窗口，前面创建的信息都在内存中，通过 jf.setVisible(true) 把内存中的窗口显示在屏幕上。
         cutHelper.setVisible(true);
         CutList.getInstance().getListFromFile();
-
     }
 
     public static void addListModel(Collection<String> list) {

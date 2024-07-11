@@ -34,7 +34,7 @@ public class KeywordListener {
     private static void showApplicationWindow() {
         Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
         JFrame cutHelper = MainGui.cutHelper;
-        if(cutHelper.isActive()) {
+        if(cutHelper.isVisible()) {
             cutHelper.setVisible(false);
         }else{
             cutHelper.setLocation(mouseLocation);
