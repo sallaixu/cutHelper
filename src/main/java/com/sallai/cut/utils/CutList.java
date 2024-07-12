@@ -9,10 +9,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 
 /**
  * @description: $
@@ -57,8 +54,7 @@ public class CutList {
         if( listModel.size() >= HISTORY_NUM ) {
             listModel.remove(listModel.size()-1);
         }
-        MainGui.addListModel(Arrays.asList(str));
-//        updateGui();
+        MainGui.addListModel(Collections.singletonList(str));
         log.info("update gui1");
         ++add_count;
         if( add_count > saveNum) {
@@ -72,9 +68,8 @@ public class CutList {
 
     /**
      * 将记录持久化到文件中
-     * @return
      */
-    public boolean saveListToFile() {
+    public void saveListToFile() {
 
         File file = new File(LocalConstants.LIST_SAVE_PATH);
         if (!file.exists()) {
@@ -83,7 +78,7 @@ public class CutList {
             } catch (IOException e) {
                 log.info("create LIST_SAVE_PATH fail");
                 e.printStackTrace();
-                return false;
+                return;
             }
         }
         Enumeration<String> elements = MainGui.listModel.elements();
@@ -105,10 +100,7 @@ public class CutList {
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
-            return false;
         }
-
-        return true;
 
     }
 
@@ -135,7 +127,6 @@ public class CutList {
             }
             MainGui.listModel.clear();
             MainGui.addListModel(list);
-//            updateGui();
             log.debug("set cut history from file");
         }catch (IOException e) {
             e.printStackTrace();

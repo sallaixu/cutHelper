@@ -8,6 +8,8 @@ import com.sallai.cut.utils.CutList;
 import com.sallai.cut.utils.CutUtil;
 import com.sallai.cut.utils.Notification;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +17,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
+import java.util.stream.IntStream;
 
 import static com.sallai.cut.utils.AppConstant.HELLO_ITEM_INFO;
 
@@ -26,22 +29,28 @@ import static com.sallai.cut.utils.AppConstant.HELLO_ITEM_INFO;
 @Slf4j
 public class MainGui {
     public static DefaultListModel<String> listModel = new DefaultListModel<>();
+    public static DefaultListModel<String> searchListModel = new DefaultListModel<>();
     private static final JList<String> mJlist = new JList<>(listModel);
     public static long start = 0;
     public static int select_index = -1;
     private static JScrollPane jScrollPane;
     public static JFrame cutHelper;
+    private JPopupMenu popupMenu;
+    private static boolean searchFlag = false;
 
     public void initGui() {
+
         FlatLightLaf.setup();
         FlatDarkLaf.setup();
-
         listModel.addElement(HELLO_ITEM_INFO);
         //舒适化窗口
         cutHelper = new JFrame("CutHelper");
         // 设置窗口大小
         cutHelper.setSize(300, 400);
         cutHelper.setResizable(true);
+        //设置图标
+        Image icon = Toolkit.getDefaultToolkit().getImage(Notification.class.getResource("/img/cut.png"));
+        cutHelper.setIconImage(icon);
         // 把窗口位置设置到屏幕中心
         cutHelper.setLocationRelativeTo(null);
         // 当点击窗口的关闭按钮时退出程序（没有这一句，程序不会退出）
@@ -51,13 +60,20 @@ public class MainGui {
             @Override
             public void mouseClicked(MouseEvent e) {
                 long end = System.currentTimeMillis();
+                Point point = e.getPoint();
                 if( mJlist.getSelectedIndex() == select_index && (end - start) < 1000) {
                     CutUtil.setSysClipboardText(mJlist.getSelectedValue());
                     log.info("copy success");
-                    String text = mJlist.getSelectedValue();
-                    Notification.showNotification("cutHelper","已复制:"+
-                            text.substring(0, Math.min(text.length(), 30)) + "...");
-//                    JOptionPane.showMessageDialog(cutHelper, "复制成功", "Message", JOptionPane.INFORMATION_MESSAGE);
+                    popupMenu.add(new JLabel("<html><body style='width: 200px; color:green;'>复制成功</pre</body></html>"));
+                    popupMenu.show(mJlist, point.x, point.y);
+                }else {
+                    popupMenu = new JPopupMenu();
+                    //转义html标签
+                    String escapedValue = StringEscapeUtils.escapeHtml4(mJlist.getSelectedValue());
+                    //添加你需要显示的内容
+                    popupMenu.add(new JLabel("<html><body style='width: 200px;'><pre><code>" + escapedValue
+                            + "</code></pre</body></html>"));
+                    popupMenu.show(mJlist, point.x + 5, point.y + 10);
                 }
                 select_index = mJlist.getSelectedIndex();
                 start = end;
@@ -83,15 +99,19 @@ public class MainGui {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 Component renderer = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                String text = "[" +(index + 1)+"]" + ". " + value.toString();
-//                if(index%2==0) {
-//                    ((JLabel) renderer).setBackground(new Color(255,248,220));
-//                }
+                String text = "[" +(index + 1)+"]" + " " + value.toString();
+                if(index % 2 == 0) {
+                    ((JLabel) renderer).setBackground(new Color(210,210,210));
+                    ((JLabel) renderer).setFocusable(true);
+                }
+                if (isSelected) {
+                    renderer.setBackground(list.getSelectionBackground());
+                    renderer.setForeground(list.getSelectionForeground());
+                }
                 ((JLabel) renderer).setText(text);
                 return renderer;
             }
         });
-
         //添加头panel
         HeaderJPanel headerJPanel = new HeaderJPanel();
         headerJPanel.setMinimumSize(new Dimension(0,20));
@@ -115,4 +135,24 @@ public class MainGui {
         mJlist.setSelectedIndex(0);
         mJlist.ensureIndexIsVisible(0);
     }
+
+
+    public static void filterSearchText(String keyword) {
+        // 遍历数据模型，设置所有项为隐藏
+        log.info("search keyword: "+keyword);
+        if(StringUtils.isBlank(keyword)) {
+            mJlist.setModel(listModel);
+            return;
+        }
+        searchListModel.clear();
+        for (int i = 0; i < listModel.getSize(); i++) {
+            String item = listModel.getElementAt(i);
+            if (StringUtils.containsIgnoreCase(item, keyword)) {
+                searchListModel.addElement(item);
+            }
+        }
+        mJlist.setModel(searchListModel);
+        searchFlag = true;
+    }
+
 }
