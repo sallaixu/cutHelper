@@ -36,6 +36,7 @@ public class MainGui {
     private static JScrollPane jScrollPane;
     public static JFrame cutHelper;
     private JPopupMenu popupMenu;
+    private static Font songFont = new Font("宋体",Font.PLAIN,14);
     private static boolean searchFlag = false;
 
     public void initGui() {
@@ -49,7 +50,7 @@ public class MainGui {
         cutHelper.setSize(300, 400);
         cutHelper.setResizable(true);
         //设置图标
-        Image icon = Toolkit.getDefaultToolkit().getImage(Notification.class.getResource("/img/cut.png"));
+        Image icon = Toolkit.getDefaultToolkit().getImage(Notification.class.getResource("/static/img/cut.png"));
         cutHelper.setIconImage(icon);
         // 把窗口位置设置到屏幕中心
         cutHelper.setLocationRelativeTo(null);
@@ -64,15 +65,17 @@ public class MainGui {
                 if( mJlist.getSelectedIndex() == select_index && (end - start) < 1000) {
                     CutUtil.setSysClipboardText(mJlist.getSelectedValue());
                     log.info("copy success");
-                    popupMenu.add(new JLabel("<html><body style='width: 200px; color:green;'>复制成功</pre</body></html>"));
+                    Component add = popupMenu.add(new JLabel("<html><body style='width: 200px; color:green;'>复制成功</pre</body></html>"));
                     popupMenu.show(mJlist, point.x, point.y);
                 }else {
                     popupMenu = new JPopupMenu();
                     //转义html标签
                     String escapedValue = StringEscapeUtils.escapeHtml4(mJlist.getSelectedValue());
                     //添加你需要显示的内容
-                    popupMenu.add(new JLabel("<html><body style='width: 200px;'><pre><code>" + escapedValue
-                            + "</code></pre</body></html>"));
+                    JLabel jLabel = new JLabel("<html><body style='width: 200px;'><pre><code>" + escapedValue
+                            + "</code></pre</body></html>");
+                    jLabel.setFont(songFont);
+                    popupMenu.add(jLabel);
                     popupMenu.show(mJlist, point.x + 5, point.y + 10);
                 }
                 select_index = mJlist.getSelectedIndex();
@@ -109,6 +112,7 @@ public class MainGui {
                     renderer.setForeground(list.getSelectionForeground());
                 }
                 ((JLabel) renderer).setText(text);
+                ((JLabel) renderer).setFont(songFont);
                 return renderer;
             }
         });
