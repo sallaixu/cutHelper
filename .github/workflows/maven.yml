@@ -21,15 +21,15 @@ jobs:
     steps:
       - name: "pull source"
         uses: actions/checkout@v4
-      - name: set up JDK 11
+      - name: set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
       - run: mvn --batch-mode --update-snapshots verify
-      - run: mkdir staging && cp target/*.jar staging
+      - run: mkdir buildJar && cp target/^cutHelper.*\.jar$ buildJar
       - uses: actions/upload-artifact@v4
         with:
           name: Package
-          path: staging
+          path: buildJar
    
