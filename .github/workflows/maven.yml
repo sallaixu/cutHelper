@@ -27,9 +27,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - run: mvn --batch-mode --update-snapshots verify
-      - run: mkdir buildJar && cp target/^cutHelper.*\.jar$ buildJar
+      - run: mkdir build && cp target/*.jar build
       - uses: actions/upload-artifact@v4
         with:
           name: Package
-          path: buildJar
+          path: build
    
