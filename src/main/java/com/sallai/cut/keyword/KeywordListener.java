@@ -2,6 +2,7 @@ package com.sallai.cut.keyword;
 
 import com.melloware.jintellitype.HotkeyListener;
 import com.melloware.jintellitype.JIntellitype;
+import com.sallai.cut.componet.HeaderJPanel;
 import com.sallai.cut.gui.MainGui;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,6 +22,7 @@ public class KeywordListener {
             public void onHotKey(int key) {
                 if (key == 1) {
                     showApplicationWindow();
+                    HeaderJPanel.requestSearchFocus();
                 }
             }
         });
@@ -33,6 +35,8 @@ public class KeywordListener {
      */
     private static void showApplicationWindow() {
         Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+        mouseLocation.x -= 80;
+        mouseLocation.y -= 80;
         JFrame cutHelper = MainGui.cutHelper;
         if(cutHelper.isVisible()) {
             cutHelper.setVisible(false);

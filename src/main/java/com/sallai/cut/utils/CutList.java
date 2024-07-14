@@ -1,8 +1,10 @@
 package com.sallai.cut.utils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sallai.cut.componet.TextListJList;
 import com.sallai.cut.gui.MainGui;
 import lombok.extern.slf4j.Slf4j;
+import org.w3c.dom.Text;
 
 import javax.swing.*;
 import java.io.File;
@@ -39,7 +41,7 @@ public class CutList {
      * @return
      */
     public boolean addCutCard(String str) {
-        DefaultListModel<String> listModel = MainGui.listModel;
+        DefaultListModel<String> listModel = TextListJList.listModel;
         if("".equals(str)) {
             return false;
         }
@@ -54,7 +56,7 @@ public class CutList {
         if( listModel.size() >= HISTORY_NUM ) {
             listModel.remove(listModel.size()-1);
         }
-        MainGui.addListModel(Collections.singletonList(str));
+        TextListJList.addListModel(Collections.singletonList(str));
         log.info("update gui1");
         ++add_count;
         if( add_count > saveNum) {
@@ -81,7 +83,7 @@ public class CutList {
                 return;
             }
         }
-        Enumeration<String> elements = MainGui.listModel.elements();
+        Enumeration<String> elements = TextListJList.listModel.elements();
         List<String> saveList = new ArrayList<>();
         while (elements.hasMoreElements()) {
             saveList.add(elements.nextElement());
@@ -96,7 +98,9 @@ public class CutList {
         }catch (IOException e) {
             e.printStackTrace();
             try {
-                fileWriter.close();
+                if(fileWriter!= null) {
+                    fileWriter.close();
+                }
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -125,8 +129,9 @@ public class CutList {
             if(list.isEmpty()) {
                 return;
             }
-            MainGui.listModel.clear();
-            MainGui.addListModel(list);
+            Collections.reverse(list);
+            TextListJList.clearListModel();
+            TextListJList.addListModel(list);
             log.debug("set cut history from file");
         }catch (IOException e) {
             e.printStackTrace();
